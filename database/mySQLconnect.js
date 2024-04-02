@@ -17,9 +17,9 @@ var connection = mysql.createConnection({
 
     host: 'localhost',
     port: 3306,
-    user: 'kpallo_cs355sp23',
-    password: 'pa005537823',
-    database: 'kpallo_cs355sp23'
+    user: 'blang_cs355sp23',
+    password: 'la008218958',
+    database: 'blang_cs355sp23'
 });
 
 module.exports = connection;

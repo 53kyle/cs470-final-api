@@ -7,7 +7,7 @@ require('dotenv').config();
 const authorizeUser = async (ctx) => {
         return new Promise((resolve, reject) => {
 	    
-            let query = "SELECT * FROM cs470_Employee WHERE id = ?";
+            let query = "SELECT * FROM cs470_Employee WHERE employee_id = ?";
 
             dbConnection.query(
                 {
