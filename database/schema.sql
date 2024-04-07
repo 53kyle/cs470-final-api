@@ -19,13 +19,16 @@ CREATE TABLE cs470_Employee (
 
 
 CREATE TABLE cs470_Shift (
-    id varchar(8) UNIQUE,
+    shift_id int(11) UNIQUE,
     department varchar(20),
-    employee_id varchar(8),
+    employee_id int(11),
     start_time datetime,
     end_time datetime,
-    PRIMARY KEY (id),
-    FOREIGN KEY (employee_id) REFERENCES cs470_Employee(id) ON DELETE SET NULL
+    meal boolean,
+    meal_start datetime,
+	meal_end datetime,
+    PRIMARY KEY (shift_id),
+    FOREIGN KEY (employee_id) REFERENCES cs470_Employee(employee_id) ON DELETE SET NULL
 );
 
 
