@@ -19,10 +19,9 @@ CREATE TABLE cs470_Employee (
 
 
 CREATE TABLE cs470_Shift (
-	id varchar(8) UNIQUE,
-    location varchar(20),
+    id varchar(8) UNIQUE,
+    department varchar(20),
     employee_id varchar(8),
-    position varchar(20),
     start_time datetime,
     end_time datetime,
     PRIMARY KEY (id),
