@@ -30,6 +30,140 @@ const allEmployees = async (ctx) => {
 }
 
 
+const allPunches = async (ctx) => {
+    return new Promise((resolve, reject) => {
+
+        let query = `
+		SELECT
+    			CONCAT(e.first_name, ' ', e.last_name) AS name,
+    			e.last_name AS employee_last_name,
+    			p.punchin,
+    			p.approved,
+    			p.pending,
+    			p.punch_type
+		FROM
+    			cs470_Employee_Punchin p
+		JOIN
+    			cs470_Employee e ON p.employee_id = e.employee_id
+		ORDER BY
+			p.punchin
+		     `;
+
+        dbConnection.query({
+            sql: query
+        }, (error, tuples) => {
+            if (error) {
+                console.log("Connection error in EmployeesController::allPunches", error);
+                ctx.body = [];
+                ctx.status = 200;
+                return reject(error);
+            }
+            ctx.body = tuples;
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in allPunches.", err);
+        ctx.body = [];
+        ctx.status = 500;
+    });
+}
+
+const allRequests = async (ctx) => {
+    return new Promise((resolve, reject) => {
+
+        let query = `SELECT CONCAT(e.first_name, ' ', e.last_name) AS name, t.start_time, t.end_time, t.reason
+			FROM cs470_Employee_Timeoff t
+			JOIN cs470_Employee e ON t.employee_id = e.employee_id
+			ORDER BY t.start_time;
+			`;
+
+        dbConnection.query({
+            sql: query
+        }, (error, tuples) => {
+            if (error) {
+                console.log("Connection error in EmployeesController::allRequests", error);
+                ctx.body = [];
+                ctx.status = 200;
+                return reject(error);
+            }
+            ctx.body = tuples;
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in allRequests.", err);
+        ctx.body = [];
+        ctx.status = 500;
+    });
+}
+
+const timeOffRequestByID = async (ctx) => {
+    return new Promise((resolve, reject) => {
+        const query = `
+                        SELECT * 
+                        FROM cs470_Employee_Timeoff
+                        WHERE employee_id = ? 
+                        ORDER BY start_time;        
+                    `;
+        dbConnection.query({
+            sql: query,
+            values: [ctx.params.employee_id]
+        }, (error, tuples) => {
+            if (error) {
+                console.log("Connection error in EmployeesController::timeOffRequestByID", error);
+                ctx.body = [];
+                ctx.status = 200;
+                return reject(error);
+            }
+            ctx.body = tuples;
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in timeOffRequestByID.", err);
+        // The UI side will have to look for the value of status and
+        // if it is not 200, act appropriately.
+        ctx.body = [];
+        ctx.status = 500;
+    });
+}
+
+const availabilityRequestsByID= async (ctx) => {
+    return new Promise((resolve, reject) => {
+        const query = `
+                        SELECT * 
+                        FROM cs470_Employee_Availability_Requests
+                        WHERE employee_id = ? 
+                        ORDER BY start_time;        
+                    `;
+        dbConnection.query({
+            sql: query,
+            values: [ctx.params.employee_id]
+        }, (error, tuples) => {
+            if (error) {
+                console.log("Connection error in EmployeesController::availabilityRequestsByID", error);
+                ctx.body = [];
+                ctx.status = 200;
+                return reject(error);
+            }
+            ctx.body = tuples;
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in availabilityRequestsByID.", err);
+        // The UI side will have to look for the value of status and
+        // if it is not 200, act appropriately.
+        ctx.body = [];
+        ctx.status = 500;
+    });
+}
+
 module.exports = {
-    allEmployees
+    allEmployees,
+    allPunches,
+    allRequests,
+    timeOffRequestByID,
+    availabilityRequestsByID
 };
