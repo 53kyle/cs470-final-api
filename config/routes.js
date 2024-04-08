@@ -51,7 +51,20 @@ summaryRouter.get('/trained/:employee_id', SummaryController.trainedSummaryWithI
 summaryRouter.get('/availability/:employee_id', SummaryController.availabilitySummaryWithID);
 summaryRouter.get('/requests/:employee_id', SummaryController.requestsSummaryWithID);
 
+const ShiftsController = require('../app/Controllers/ShiftsController.js');
+const shiftsRouter = require('koa-router')({
+    prefix: '/shifts'
+});
 
+shiftsRouter.get('/all-shifts/:start_date/:end_date', ShiftsController.shiftsInRange);
+shiftsRouter.get('/employee/:employee_id/:start_date/:end_date', ShiftsController.shiftsForEmployeeInRange);
+
+const EmployeesController = require('../app/Controllers/EmployeesController.js');
+const employeesRouter = require('koa-router')({
+    prefix: '/employees'
+});
+
+employeesRouter.get('/all-employees', EmployeesController.allEmployees);
 
 /**
  * Register all of the controllers into the default controller.
@@ -59,7 +72,9 @@ summaryRouter.get('/requests/:employee_id', SummaryController.requestsSummaryWit
 router.use(
     '',
     loginRouter.routes(),
-    summaryRouter.routes()
+    summaryRouter.routes(),
+    shiftsRouter.routes(),
+    employeesRouter.routes()
 );
 
 module.exports = function (app) {
