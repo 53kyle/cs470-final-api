@@ -70,6 +70,7 @@ employeesRouter.get('/all-punches', EmployeesController.allPunches);
 employeesRouter.get('/all-requests', EmployeesController.allRequests);
 employeesRouter.get('/requests/time-off/:employee_id', EmployeesController.timeOffRequestByID);
 employeesRouter.get('/requests/availability/:employee_id', EmployeesController.availabilityRequestsByID);
+employeesRouter.put('/update/:employee_id', EmployeesController.updateEmployee);
 /**
  * Register all of the controllers into the default controller.
  */
