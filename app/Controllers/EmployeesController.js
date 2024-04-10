@@ -160,6 +160,88 @@ const availabilityRequestsByID= async (ctx) => {
     });
 }
 
+
+const employeesTrainedInShift = async (ctx) => {
+    return new Promise((resolve, reject) => {
+        const query = `
+                    SELECT e.employee_id
+                    FROM cs470_Employee e
+                    JOIN cs470_Employee_Trained t ON e.employee_id = t.employee_id
+                    WHERE t.department = (
+                        SELECT department 
+                        FROM cs470_Shift 
+                        WHERE shift_id = ?
+                    )        
+                    `;
+        dbConnection.query({
+            sql: query,
+            values: [ctx.params.shift_id]
+        }, (error, tuples) => {
+            if (error) {
+                console.log("Connection error in EmployeesController::employeesTrainedInShift", error);
+                ctx.body = [];
+                ctx.status = 200;
+                return reject(error);
+            }
+            ctx.body = tuples;
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in employeesTrainedInShift.", err);
+        // The UI side will have to look for the value of status and
+        // if it is not 200, act appropriately.
+        ctx.body = [];
+        ctx.status = 500;
+    });
+}
+
+
+const employeesAvailableForShift = async (ctx) => {
+    return new Promise((resolve, reject) => {
+        const query = `
+                    SELECT e.employee_id
+                    FROM cs470_Employee e
+                    WHERE NOT EXISTS (
+                        SELECT 1
+                        FROM cs470_Employee_Timeoff toff
+                        WHERE e.employee_id = toff.employee_id
+                        AND TIME(toff.start_time) <= (SELECT TIME(start_time) FROM cs470_Shift WHERE shift_id = ?)
+                        AND TIME(toff.end_time) >= (SELECT TIME(end_time) FROM cs470_Shift WHERE shift_id = ?)
+                        AND toff.status != 'Pending'
+                    )
+                    AND EXISTS (
+                        SELECT 1
+                        FROM cs470_Employee_Availability ava
+                        WHERE e.employee_id = ava.employee_id
+                        AND ava.day_of_week = ?
+                        AND TIME(ava.start_time) <= (SELECT TIME(start_time) FROM cs470_Shift WHERE shift_id = ?)
+                        AND TIME(ava.end_time) >= (SELECT TIME(end_time) FROM cs470_Shift WHERE shift_id = ?)
+                    )
+                    `;
+        dbConnection.query({
+            sql: query,
+            values: [ctx.params.shift_id, ctx.params.shift_id, ctx.params.day, ctx.params.shift_id, ctx.params.shift_id]
+        }, (error, tuples) => {
+            if (error) {
+                console.log("Connection error in EmployeesController::employeesAvailableForShift", error);
+                ctx.body = [];
+                ctx.status = 200;
+                return reject(error);
+            }
+            ctx.body = tuples;
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in employeesAvailableForShift.", err);
+        // The UI side will have to look for the value of status and
+        // if it is not 200, act appropriately.
+        ctx.body = [];
+        ctx.status = 500;
+    });
+}
+
 const updateEmployee = async (ctx) => {
     return new Promise((resolve, reject) => {
         const { employee_id, updatedEmployee } = ctx.params; // Assuming the updatedEmployee object is passed from the UI
@@ -200,5 +282,7 @@ module.exports = {
     allRequests,
     timeOffRequestByID,
     availabilityRequestsByID,
-    updateEmployee
+    updateEmployee,
+    employeesTrainedInShift,
+    employeesAvailableForShift
 };

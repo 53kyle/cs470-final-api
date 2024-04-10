@@ -101,8 +101,40 @@ const nextShiftForEmployee = async (ctx) => {
     });
 }
 
+
+const updateShift = async (ctx) => {
+    const { employee_id, shift_id } = ctx.params;
+    return new Promise((resolve, reject) => {
+
+        const query = `
+            UPDATE cs470_Shift
+            SET employee_id = ?
+            WHERE shift_id = ?;
+        `;
+
+
+        dbConnection.query({
+            sql: query,
+            values: [employee_id, shift_id]
+        }, (error, result) => {
+            if (error) {
+                console.log("Connection error in ShiftController::updateShift", error);
+                ctx.status = 500;
+                return reject(error);
+            }
+            console.log("Shift updated successfully");
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in updateShift.", err);
+        ctx.status = 500;
+    });
+}
+
 module.exports = {
     shiftsInRange,
     shiftsForEmployeeInRange,
-    nextShiftForEmployee
+    nextShiftForEmployee,
+    updateShift
 };

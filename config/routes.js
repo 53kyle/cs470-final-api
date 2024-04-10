@@ -59,6 +59,7 @@ const shiftsRouter = require('koa-router')({
 shiftsRouter.get('/all-shifts/:start_date/:end_date', ShiftsController.shiftsInRange);
 shiftsRouter.get('/employee/:employee_id/:start_date/:end_date', ShiftsController.shiftsForEmployeeInRange);
 shiftsRouter.get('/employee/:employee_id/next', ShiftsController.nextShiftForEmployee);
+shiftsRouter.put('/update/:employee_id/:shift_id', ShiftsController.updateShift);
 
 const EmployeesController = require('../app/Controllers/EmployeesController.js');
 const employeesRouter = require('koa-router')({
@@ -71,6 +72,10 @@ employeesRouter.get('/all-requests', EmployeesController.allRequests);
 employeesRouter.get('/requests/time-off/:employee_id', EmployeesController.timeOffRequestByID);
 employeesRouter.get('/requests/availability/:employee_id', EmployeesController.availabilityRequestsByID);
 employeesRouter.put('/update/:employee_id', EmployeesController.updateEmployee);
+employeesRouter.get('/trained/:shift_id', EmployeesController.employeesTrainedInShift);
+employeesRouter.get('/available/:shift_id/:day', EmployeesController.employeesAvailableForShift);
+
+
 /**
  * Register all of the controllers into the default controller.
  */
