@@ -244,15 +244,12 @@ const employeesAvailableForShift = async (ctx) => {
 
 const updateEmployee = async (ctx) => {
     return new Promise((resolve, reject) => {
-        const { employee_id, updatedEmployee } = ctx.params; // Assuming the updatedEmployee object is passed from the UI
+	let valuesFromUpdate = JSON.parse(JSON.stringify(ctx.request.body)); //Deep copy for passed object
 
-        // Extracting fields from the updatedEmployee object
-        const { first_name, middle_name, last_name, max_hours } = updatedEmployee;
-	console.log(updatedEmployee);
-	
+	const { first_name, middle_name, last_name, max_hours, employee_id } = valuesFromUpdate;
 
         const query = `
-            UPDATE cs470_Employee_Availability_Requests
+            UPDATE cs470_Employee
             SET first_name = ?, middle_name = ?, last_name = ?, max_hours = ?
             WHERE employee_id = ?;
         `;

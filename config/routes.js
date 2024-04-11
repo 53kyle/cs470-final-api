@@ -71,10 +71,21 @@ employeesRouter.get('/all-punches', EmployeesController.allPunches);
 employeesRouter.get('/all-requests', EmployeesController.allRequests);
 employeesRouter.get('/requests/time-off/:employee_id', EmployeesController.timeOffRequestByID);
 employeesRouter.get('/requests/availability/:employee_id', EmployeesController.availabilityRequestsByID);
-employeesRouter.put('/update/:employee_id', EmployeesController.updateEmployee);
+employeesRouter.put('/update', EmployeesController.updateEmployee);
 employeesRouter.get('/trained/:shift_id', EmployeesController.employeesTrainedInShift);
 employeesRouter.get('/available/:shift_id/:day', EmployeesController.employeesAvailableForShift);
 
+const PunchInController = require('../app/Controllers/PunchInController.js');
+const punchInRouter = require('koa-router')({
+    prefix: '/punchin'
+});
+
+punchInRouter.put('/start-shift/:employee_id/:approved', PunchInController.addStartShift);
+punchInRouter.put('/end-shift/:employee_id/:approved', PunchInController.addEndShift);
+punchInRouter.put('/start-meal/:employee_id/:approved', PunchInController.addStartMeal);
+punchInRouter.put('/end-meal/:employee_id/:approved', PunchInController.addEndMeal);
+punchInRouter.put('/set-approved/:employee_id/:punchin', PunchInController.setPunchApproved);
+punchInRouter.put('/set-denied/:employee_id/:punchin', PunchInController.setPunchDenied);
 
 /**
  * Register all of the controllers into the default controller.
@@ -84,7 +95,8 @@ router.use(
     loginRouter.routes(),
     summaryRouter.routes(),
     shiftsRouter.routes(),
-    employeesRouter.routes()
+    employeesRouter.routes(),
+    punchInRouter.routes()
 );
 
 module.exports = function (app) {
