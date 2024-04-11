@@ -172,11 +172,43 @@ const setPunchDenied = async (ctx) => {
     });
 }
 
+const lastPunchForEmployee = async (ctx) => {
+    return new Promise((resolve, reject) => {
+
+        let query = `
+            SELECT * FROM cs470_Employee_Punchin 
+            WHERE employee_id = ? 
+            ORDER BY punchin 
+            DESC 
+            LIMIT 1;`;
+
+        dbConnection.query({
+            sql: query,
+            values: [Number(ctx.params.employee_id)]
+        }, (error, tuples) => {
+            if (error) {
+                console.log("Connection error in PunchInController::lastPunchForEmployee", error);
+                ctx.body = [];
+                ctx.status = 200;
+                return reject(error);
+            }
+            ctx.body = tuples;
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in lastPunchForEmployee.", err);
+        ctx.body = [];
+        ctx.status = 500;
+    });
+}
+
 module.exports = {
     addStartShift: addStartShift,
     addEndShift: addEndShift,
     addStartMeal: addStartMeal,
     addEndMeal: addEndMeal,
     setPunchApproved: setPunchApproved,
-    setPunchDenied: setPunchDenied
+    setPunchDenied: setPunchDenied,
+    lastPunchForEmployee: lastPunchForEmployee
 };

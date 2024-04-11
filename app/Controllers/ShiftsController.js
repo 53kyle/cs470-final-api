@@ -101,6 +101,36 @@ const nextShiftForEmployee = async (ctx) => {
     });
 }
 
+const todaysShiftForEmployee = async (ctx) => {
+    return new Promise((resolve, reject) => {
+
+        let query = `
+            SELECT * FROM cs470_Shift 
+            WHERE employee_id = ? 
+            AND DATE(start_time) > DATE(NOW()) 
+            LIMIT 1`;
+
+        dbConnection.query({
+            sql: query,
+            values: [Number(ctx.params.employee_id)]
+        }, (error, tuples) => {
+            if (error) {
+                console.log("Connection error in ShiftsController::todaysShiftForEmployee", error);
+                ctx.body = [];
+                ctx.status = 200;
+                return reject(error);
+            }
+            ctx.body = tuples;
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in todaysShiftForEmployee.", err);
+        ctx.body = [];
+        ctx.status = 500;
+    });
+}
+
 
 const updateShift = async (ctx) => {
     const { employee_id, shift_id } = ctx.params;
@@ -136,5 +166,6 @@ module.exports = {
     shiftsInRange,
     shiftsForEmployeeInRange,
     nextShiftForEmployee,
+    todaysShiftForEmployee,
     updateShift
 };

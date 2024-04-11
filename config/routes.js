@@ -59,6 +59,7 @@ const shiftsRouter = require('koa-router')({
 shiftsRouter.get('/all-shifts/:start_date/:end_date', ShiftsController.shiftsInRange);
 shiftsRouter.get('/employee/:employee_id/:start_date/:end_date', ShiftsController.shiftsForEmployeeInRange);
 shiftsRouter.get('/employee/:employee_id/next', ShiftsController.nextShiftForEmployee);
+shiftsRouter.get('/employee/:employee_id/today', ShiftsController.todaysShiftForEmployee);
 shiftsRouter.put('/update/:employee_id/:shift_id', ShiftsController.updateShift);
 
 const EmployeesController = require('../app/Controllers/EmployeesController.js');
@@ -86,6 +87,7 @@ punchInRouter.post('/start-meal/:employee_id/:approved', PunchInController.addSt
 punchInRouter.post('/end-meal/:employee_id/:approved', PunchInController.addEndMeal);
 punchInRouter.put('/set-approved/:employee_id/:punchin', PunchInController.setPunchApproved);
 punchInRouter.put('/set-denied/:employee_id/:punchin', PunchInController.setPunchDenied);
+punchInRouter.get('/last-punch/:employees_id', PunchInController.lastPunchForEmployee);
 
 /**
  * Register all of the controllers into the default controller.
