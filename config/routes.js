@@ -80,10 +80,10 @@ const punchInRouter = require('koa-router')({
     prefix: '/punchin'
 });
 
-punchInRouter.put('/start-shift/:employee_id/:approved', PunchInController.addStartShift);
-punchInRouter.put('/end-shift/:employee_id/:approved', PunchInController.addEndShift);
-punchInRouter.put('/start-meal/:employee_id/:approved', PunchInController.addStartMeal);
-punchInRouter.put('/end-meal/:employee_id/:approved', PunchInController.addEndMeal);
+punchInRouter.post('/start-shift/:employee_id/:approved', PunchInController.addStartShift);
+punchInRouter.post('/end-shift/:employee_id/:approved', PunchInController.addEndShift);
+punchInRouter.post('/start-meal/:employee_id/:approved', PunchInController.addStartMeal);
+punchInRouter.post('/end-meal/:employee_id/:approved', PunchInController.addEndMeal);
 punchInRouter.put('/set-approved/:employee_id/:punchin', PunchInController.setPunchApproved);
 punchInRouter.put('/set-denied/:employee_id/:punchin', PunchInController.setPunchDenied);
 
