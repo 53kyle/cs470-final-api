@@ -15,7 +15,7 @@ const addStartShift = async (ctx) => {
 
         dbConnection.query({
             sql: query,
-            values: [Number(ctx.params.employee_id), Boolean(ctx.params.approved), !Boolean(ctx.params.approved)]
+            values: [Number(ctx.params.employee_id), Boolean(ctx.params.approved) ? 1 : 0, !Boolean(ctx.params.approved) ? 1 : 0]
         }, (error, result) => {
             if (error) {
                 console.log("Connection error in PunchInController::addStartShift", error);
@@ -43,7 +43,7 @@ const addEndShift = async (ctx) => {
 
         dbConnection.query({
             sql: query,
-            values: [Number(ctx.params.employee_id), Boolean(ctx.params.approved), !Boolean(ctx.params.approved)]
+            values: [Number(ctx.params.employee_id), Boolean(ctx.params.approved) ? 1 : 0, !Boolean(ctx.params.approved) ? 1 : 0]
         }, (error, result) => {
             if (error) {
                 console.log("Connection error in PunchInController::addEndShift", error);
@@ -71,7 +71,7 @@ const addStartMeal = async (ctx) => {
 
         dbConnection.query({
             sql: query,
-            values: [Number(ctx.params.employee_id), Boolean(ctx.params.approved), !Boolean(ctx.params.approved)]
+            values: [Number(ctx.params.employee_id), Boolean(ctx.params.approved) ? 1 : 0, !Boolean(ctx.params.approved) ? 1 : 0]
         }, (error, result) => {
             if (error) {
                 console.log("Connection error in PunchInController::addStartMeal", error);
@@ -99,7 +99,7 @@ const addEndMeal = async (ctx) => {
 
         dbConnection.query({
             sql: query,
-            values: [Number(ctx.params.employee_id), Boolean(ctx.params.approved), !Boolean(ctx.params.approved)]
+            values: [Number(ctx.params.employee_id), Boolean(ctx.params.approved) ? 1 : 0, !Boolean(ctx.params.approved) ? 1 : 0]
         }, (error, result) => {
             if (error) {
                 console.log("Connection error in PunchInController::addEndMeal", error);
