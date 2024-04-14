@@ -214,14 +214,14 @@ const employeesAvailableForShift = async (ctx) => {
                         SELECT 1
                         FROM cs470_Employee_Availability ava
                         WHERE e.employee_id = ava.employee_id
-                        AND ava.day_of_week = ?
+                        AND ava.day_of_week = DAYNAME(start_time)
                         AND TIME(ava.start_time) <= (SELECT TIME(start_time) FROM cs470_Shift WHERE shift_id = ?)
                         AND TIME(ava.end_time) >= (SELECT TIME(end_time) FROM cs470_Shift WHERE shift_id = ?)
                     )
                     `;
         dbConnection.query({
             sql: query,
-            values: [ctx.params.shift_id, ctx.params.shift_id, ctx.params.day, ctx.params.shift_id, ctx.params.shift_id]
+            values: [ctx.params.shift_id, ctx.params.shift_id, ctx.params.shift_id, ctx.params.shift_id]
         }, (error, tuples) => {
             if (error) {
                 console.log("Connection error in EmployeesController::employeesAvailableForShift", error);
@@ -273,6 +273,77 @@ const updateEmployee = async (ctx) => {
     });
 }
 
+const employeeHoursInRange = async (ctx) => {
+    return new Promise((resolve, reject) => {
+        const query = `
+                    SELECT 
+                    employee_id,
+                    SUM((TIMESTAMPDIFF(MINUTE, start_time, end_time) - TIMESTAMPDIFF(MINUTE, meal_start, meal_end)) / 60) AS total_hours
+                    FROM cs470_Shift
+                    WHERE 
+                        start_time >= ?
+                        AND end_time <= ?
+                    GROUP BY employee_id;
+                    `;
+        dbConnection.query({
+            sql: query,
+            values: [ctx.params.start_date, ctx.params.end_date]
+        }, (error, tuples) => {
+            if (error) {
+                console.log("Connection error in EmployeesController::employeeHoursInRange", error);
+                ctx.body = [];
+                ctx.status = 200;
+                return reject(error);
+            }
+            ctx.body = tuples;
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in employeeHoursInRange.", err);
+        // The UI side will have to look for the value of status and
+        // if it is not 200, act appropriately.
+        ctx.body = [];
+        ctx.status = 500;
+    });
+}
+
+
+const employeeShiftsInRange = async (ctx) => {
+    return new Promise((resolve, reject) => {
+        const query = `
+                    SELECT 
+                    employee_id,
+                    COUNT(department) 
+                    FROM cs470_Shift
+                    WHERE 
+                        start_time >= '2024-04-01'
+                        AND end_time <= '2024-06-30'
+                    GROUP BY employee_id
+                    `;
+        dbConnection.query({
+            sql: query,
+            values: [ctx.params.start_date, ctx.params.end_date]
+        }, (error, tuples) => {
+            if (error) {
+                console.log("Connection error in EmployeesController::employeeShiftsInRange", error);
+                ctx.body = [];
+                ctx.status = 200;
+                return reject(error);
+            }
+            ctx.body = tuples;
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in employeeShiftsInRange.", err);
+        // The UI side will have to look for the value of status and
+        // if it is not 200, act appropriately.
+        ctx.body = [];
+        ctx.status = 500;
+    });
+}
+
 module.exports = {
     allEmployees,
     allPunches,
@@ -281,5 +352,7 @@ module.exports = {
     availabilityRequestsByID,
     updateEmployee,
     employeesTrainedInShift,
-    employeesAvailableForShift
+    employeesAvailableForShift,
+    employeeHoursInRange,
+    employeeShiftsInRange
 };

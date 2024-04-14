@@ -107,7 +107,7 @@ const todaysShiftForEmployee = async (ctx) => {
         let query = `
             SELECT * FROM cs470_Shift 
             WHERE employee_id = ? 
-            AND DATE(start_time) > DATE(NOW()) 
+            AND DATE(start_time) = DATE(NOW()) 
             LIMIT 1`;
 
         dbConnection.query({
@@ -126,6 +126,83 @@ const todaysShiftForEmployee = async (ctx) => {
         });
     }).catch(err => {
         console.log("Database connection error in todaysShiftForEmployee.", err);
+        ctx.body = [];
+        ctx.status = 500;
+    });
+}
+
+const employeeCountByShift = async (ctx) => {
+    return new Promise((resolve, reject) => {
+
+        let query = `
+        SELECT 
+        s.shift_id,
+        s.employee_id,
+        s.department,
+        (
+        (TIMESTAMPDIFF(MINUTE, s.start_time, s.end_time) - 
+        CASE
+            WHEN s.meal_end IS NOT NULL AND s.meal_start IS NOT NULL THEN TIMESTAMPDIFF(MINUTE, s.meal_end, s.meal_start)
+            ELSE 0
+        END) / 60
+        ) AS length,
+    
+        COUNT(e.employee_id) AS num_employees_available
+    FROM 
+        cs470_Shift s
+    LEFT JOIN 
+        cs470_Employee_Trained t ON s.department = t.department
+    LEFT JOIN 
+        cs470_Employee e ON t.employee_id = e.employee_id
+        AND NOT EXISTS (
+            SELECT 1
+            FROM 
+                cs470_Employee_Timeoff toff
+            WHERE 
+                e.employee_id = toff.employee_id
+            AND 
+                TIME(toff.start_time) <= TIME(s.start_time)
+            AND 
+                TIME(toff.end_time) >= TIME(s.end_time)
+            AND 
+                toff.status != 'Pending'
+        )
+        AND EXISTS (
+            SELECT 1
+            FROM 
+                cs470_Employee_Availability ava
+            WHERE 
+                e.employee_id = ava.employee_id
+            AND 
+                ava.day_of_week = DAYNAME(s.start_time)
+            AND 
+                TIME(ava.start_time) <= TIME(s.start_time)
+            AND 
+                TIME(ava.end_time) >= TIME(s.end_time)
+        )
+    WHERE
+        s.start_time >= ? AND s.end_time <= ?
+    GROUP BY 
+        s.shift_id;
+    
+            `;
+
+        dbConnection.query({
+            sql: query,
+            values: [ctx.params.start_date, ctx.params.end_date]
+        }, (error, tuples) => {
+            if (error) {
+                console.log("Connection error in ShiftsController::EmployeeCountByShift", error);
+                ctx.body = [];
+                ctx.status = 200;
+                return reject(error);
+            }
+            ctx.body = tuples;
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in EmployeeCountByShift.", err);
         ctx.body = [];
         ctx.status = 500;
     });
@@ -167,5 +244,6 @@ module.exports = {
     shiftsForEmployeeInRange,
     nextShiftForEmployee,
     todaysShiftForEmployee,
-    updateShift
+    updateShift,
+    employeeCountByShift
 };
