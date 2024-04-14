@@ -147,7 +147,7 @@ const addTimeOffRequest = async (ctx) => {
                 ctx.status = 500;
                 return reject(error);
             }
-            console.log("Punch added successfully!");
+            console.log("Time off request added successfully!");
             ctx.status = 200;
             return resolve();
         });
