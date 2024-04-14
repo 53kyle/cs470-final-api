@@ -66,7 +66,7 @@ const notificationsForEmployee = async (ctx) => {
         let query = `SELECT *
             FROM cs470_Notification
             WHERE employee_id = ?
-            ORDER BY time;`;
+            ORDER BY time DESC;`;
 
         dbConnection.query({
             sql: query,
