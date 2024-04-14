@@ -140,7 +140,7 @@ const addTimeOffRequest = async (ctx) => {
 
         dbConnection.query({
             sql: query,
-            values: [Number(ctx.params.employee_id), ctx.params.start_time, ctx.params.end_time, ctx.params.reason, ctx.params.status]
+            values: [Number(ctx.params.employee_id), ctx.params.start_time, ctx.params.end_time, ctx.params.reason]
         }, (error, result) => {
             if (error) {
                 console.log("Connection error in EmployeesController::addTimeOffRequest", error);
