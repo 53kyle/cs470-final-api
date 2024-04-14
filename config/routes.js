@@ -93,6 +93,15 @@ punchInRouter.put('/set-approved/:employee_id/:punchin', PunchInController.setPu
 punchInRouter.put('/set-denied/:employee_id/:punchin', PunchInController.setPunchDenied);
 punchInRouter.get('/last-punch/:employee_id', PunchInController.lastPunchForEmployee);
 
+const NotificationsController = require('../app/Controllers/NotificationsController');
+const notificationsRouter = require('koa-router')({
+    prefix: '/notifications'
+});
+
+notificationsRouter.post('/add-notification/:employee_id/:message', NotificationsController.addNotification);
+notificationsRouter.put('/set-notifications-read/:employee_id', NotificationsController.setNotificationsReadForEmployee);
+notificationsRouter.get('/all-notifications/:employee_id', NotificationsController.notificationsForEmployee);
+
 /**
  * Register all of the controllers into the default controller.
  */
@@ -102,7 +111,8 @@ router.use(
     summaryRouter.routes(),
     shiftsRouter.routes(),
     employeesRouter.routes(),
-    punchInRouter.routes()
+    punchInRouter.routes(),
+    notificationsRouter.routes()
 );
 
 module.exports = function (app) {

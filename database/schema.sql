@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS cs470_Employee_Availability;
 DROP TABLE IF EXISTS cs470_Employee_Timeoff;
 DROP TABLE IF EXISTS cs470_Employee_Trained;
 DROP TABLE IF EXISTS cs470_Employee_Punchin;
+DROP TABLE IF EXISTS cs470_Notification;
 
 
 CREATE TABLE cs470_Employee (
@@ -40,22 +41,33 @@ CREATE TABLE cs470_Employee_Availability (
     FOREIGN KEY (employee_id) REFERENCES cs470_Employee(employee_id) ON DELETE SET NULL
 );
 
+
 CREATE TABLE cs470_Employee_Timeoff (
     employee_id int(11),
     start_time datetime,
     end_time datetime,
-    FOREIGN KEY (employee_id) REFERENCES cs470_Employee(id) ON DELETE SET NULL
+    FOREIGN KEY (employee_id) REFERENCES cs470_Employee(employee_id) ON DELETE SET NULL
 );
 
 
 CREATE TABLE cs470_Employee_Trained (
     employee_id int(11),
     trained varchar(20),
-    FOREIGN KEY (employee_id) REFERENCES cs470_Employee(id) ON DELETE SET NULL
+    FOREIGN KEY (employee_id) REFERENCES cs470_Employee(employee_id) ON DELETE SET NULL
 );
+
        
 CREATE TABLE cs470_Employee_Punchin (
     employee_id int(11),
     punchin datetime,
-    FOREIGN KEY (employee_id) REFERENCES cs470_Employee(id) ON DELETE SET NULL
+    FOREIGN KEY (employee_id) REFERENCES cs470_Employee(employee_id) ON DELETE SET NULL
+);
+
+
+CREATE TABLE cs470_Notification (
+    employee_id int(11),
+    time datetime,
+    unread boolean,
+    message varchar(100),
+    FOREIGN KEY (employee_id) REFERENCES cs470_Employee(employee_id) ON DELETE SET NULL
 );
