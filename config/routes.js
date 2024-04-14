@@ -72,6 +72,7 @@ employeesRouter.get('/all-employees', EmployeesController.allEmployees);
 employeesRouter.get('/all-punches', EmployeesController.allPunches);
 employeesRouter.get('/all-requests', EmployeesController.allRequests);
 employeesRouter.get('/requests/time-off/:employee_id', EmployeesController.timeOffRequestByID);
+employeesRouter.put('/requests/add-time-off/:employee_id/:start_time/:end_time/:reason/:status', EmployeesController.addTimeOffRequest);
 employeesRouter.get('/requests/availability/:employee_id', EmployeesController.availabilityRequestsByID);
 employeesRouter.put('/update', EmployeesController.updateEmployee);
 employeesRouter.get('/trained/:shift_id', EmployeesController.employeesTrainedInShift);

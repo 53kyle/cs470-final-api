@@ -129,6 +129,34 @@ const timeOffRequestByID = async (ctx) => {
     });
 }
 
+const addTimeOffRequest = async (ctx) => {
+    return new Promise((resolve, reject) => {
+
+        let query = `
+            INSERT INTO cs470_Employee_Timeoff 
+            (employee_id, start_time, end_time, reason, status) 
+            VALUES (?, ?, ?, ?, 'Pending');
+            `;
+
+        dbConnection.query({
+            sql: query,
+            values: [Number(ctx.params.employee_id), ctx.params.start_time, ctx.params.end_time, ctx.params.reason, ctx.params.status]
+        }, (error, result) => {
+            if (error) {
+                console.log("Connection error in EmployeesController::addTimeOffRequest", error);
+                ctx.status = 500;
+                return reject(error);
+            }
+            console.log("Punch added successfully!");
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in addTimeOffRequest.", err);
+        ctx.status = 500;
+    });
+}
+
 const availabilityRequestsByID= async (ctx) => {
     return new Promise((resolve, reject) => {
         const query = `
@@ -349,6 +377,7 @@ module.exports = {
     allPunches,
     allRequests,
     timeOffRequestByID,
+    addTimeOffRequest,
     availabilityRequestsByID,
     updateEmployee,
     employeesTrainedInShift,
