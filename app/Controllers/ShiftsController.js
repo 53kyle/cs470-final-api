@@ -139,6 +139,8 @@ const employeeCountByShift = async (ctx) => {
         s.shift_id,
         s.employee_id,
         s.department,
+        s.start_time,
+        s.end_time,
         (
         (TIMESTAMPDIFF(MINUTE, s.start_time, s.end_time) - 
         CASE
@@ -183,7 +185,8 @@ const employeeCountByShift = async (ctx) => {
     WHERE
         s.start_time >= ? AND s.end_time <= ?
     GROUP BY 
-        s.shift_id;
+        s.shift_id
+    ORDER BY num_employees_available;
     
             `;
 

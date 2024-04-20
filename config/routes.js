@@ -76,7 +76,7 @@ employeesRouter.post('/requests/add-time-off/:employee_id/:start_time/:end_time/
 employeesRouter.get('/requests/availability/:employee_id', EmployeesController.availabilityRequestsByID);
 employeesRouter.put('/update', EmployeesController.updateEmployee);
 employeesRouter.get('/trained/:shift_id', EmployeesController.employeesTrainedInShift);
-employeesRouter.get('/available/:shift_id/:day', EmployeesController.employeesAvailableForShift);
+employeesRouter.get('/available/:shift_id', EmployeesController.employeesAvailableForShift);
 employeesRouter.get('/hours/:start_date/:end_date', EmployeesController.employeeHoursInRange);
 employeesRouter.get('/shifts/:start_date/:end_date', EmployeesController.employeeShiftsInRange);
 

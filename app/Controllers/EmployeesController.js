@@ -192,7 +192,7 @@ const availabilityRequestsByID= async (ctx) => {
 const employeesTrainedInShift = async (ctx) => {
     return new Promise((resolve, reject) => {
         const query = `
-                    SELECT e.employee_id
+                    SELECT DISTINCT e.employee_id
                     FROM cs470_Employee e
                     JOIN cs470_Employee_Trained t ON e.employee_id = t.employee_id
                     WHERE t.department = (
@@ -311,7 +311,8 @@ const employeeHoursInRange = async (ctx) => {
                     WHERE 
                         start_time >= ?
                         AND end_time <= ?
-                    GROUP BY employee_id;
+                    GROUP BY employee_id
+                    ORDER BY total_hours;
                     `;
         dbConnection.query({
             sql: query,
@@ -342,12 +343,14 @@ const employeeShiftsInRange = async (ctx) => {
         const query = `
                     SELECT 
                     employee_id,
-                    COUNT(department) 
+                    COUNT(department) as count
                     FROM cs470_Shift
                     WHERE 
                         start_time >= '2024-04-01'
                         AND end_time <= '2024-06-30'
+                        AND employee_id IS NOT NULL
                     GROUP BY employee_id
+                    ORDER BY count
                     `;
         dbConnection.query({
             sql: query,
