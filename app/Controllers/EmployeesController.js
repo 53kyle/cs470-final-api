@@ -157,6 +157,36 @@ const addTimeOffRequest = async (ctx) => {
     });
 }
 
+const removeTimeOffRequest = async (ctx) => {
+    return new Promise((resolve, reject) => {
+
+        let query = `
+            DELETE FROM cs470_Employee_Timeoff 
+            WHERE employee_id = ? 
+            AND start_time = ? 
+            AND end_time = ? 
+            AND reason = ?;
+            `;
+
+        dbConnection.query({
+            sql: query,
+            values: [Number(ctx.params.employee_id), ctx.params.start_time, ctx.params.end_time, ctx.params.reason]
+        }, (error, result) => {
+            if (error) {
+                console.log("Connection error in EmployeesController::removeTimeOffRequest", error);
+                ctx.status = 500;
+                return reject(error);
+            }
+            console.log("Time off request removed successfully!");
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in removeTimeOffRequest.", err);
+        ctx.status = 500;
+    });
+}
+
 const availabilityRequestsByID= async (ctx) => {
     return new Promise((resolve, reject) => {
         const query = `
@@ -381,6 +411,7 @@ module.exports = {
     allRequests,
     timeOffRequestByID,
     addTimeOffRequest,
+    removeTimeOffRequest,
     availabilityRequestsByID,
     updateEmployee,
     employeesTrainedInShift,
