@@ -32,6 +32,34 @@ const addNotification = async (ctx) => {
     });
 }
 
+const removeNotification = async (ctx) => {
+    return new Promise((resolve, reject) => {
+
+        let query = `
+            DELETE FROM cs470_Notification 
+            WHERE employee_id = ? 
+            AND time = ?;
+            `;
+
+        dbConnection.query({
+            sql: query,
+            values: [Number(ctx.params.employee_id), ctx.params.time]
+        }, (error, result) => {
+            if (error) {
+                console.log("Connection error in NotificationsController::removeNotification", error);
+                ctx.status = 500;
+                return reject(error);
+            }
+            console.log("Notification removed successfully!");
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in removeNotification.", err);
+        ctx.status = 500;
+    });
+}
+
 const setNotificationsReadForEmployee = async (ctx) => {
     return new Promise((resolve, reject) => {
 
@@ -91,6 +119,7 @@ const notificationsForEmployee = async (ctx) => {
 
 module.exports = {
     addNotification,
+    removeNotification,
     setNotificationsReadForEmployee,
     notificationsForEmployee
 };

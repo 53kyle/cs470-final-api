@@ -102,6 +102,7 @@ const notificationsRouter = require('koa-router')({
 });
 
 notificationsRouter.post('/add-notification/:employee_id/:message', NotificationsController.addNotification);
+notificationsRouter.delete('/remove-notification/:employee_id/:time', NotificationsController.removeNotification);
 notificationsRouter.put('/set-notifications-read/:employee_id', NotificationsController.setNotificationsReadForEmployee);
 notificationsRouter.get('/all-notifications/:employee_id', NotificationsController.notificationsForEmployee);
 
