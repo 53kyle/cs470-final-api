@@ -80,6 +80,8 @@ employeesRouter.get('/trained/:shift_id', EmployeesController.employeesTrainedIn
 employeesRouter.get('/available/:shift_id', EmployeesController.employeesAvailableForShift);
 employeesRouter.get('/hours/:start_date/:end_date', EmployeesController.employeeHoursInRange);
 employeesRouter.get('/shifts/:start_date/:end_date', EmployeesController.employeeShiftsInRange);
+employeesRouter.delete('/delete/:employee_id', EmployeesController.deleteEmployee);
+employeesRouter.get('/availability/:employee_id', EmployeesController.fetchAvailabilityByID);
 
 const PunchInController = require('../app/Controllers/PunchInController.js');
 const punchInRouter = require('koa-router')({
