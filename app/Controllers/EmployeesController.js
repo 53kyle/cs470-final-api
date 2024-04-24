@@ -348,7 +348,7 @@ const employeesAvailableForShift = async (ctx) => {
             ctx.body = tuples;
             ctx.status = 200;
             return resolve();
-        });
+        }); 
     }).catch(err => {
         console.log("Database connection error in employeesAvailableForShift.", err);
         // The UI side will have to look for the value of status and

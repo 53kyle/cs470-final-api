@@ -67,7 +67,7 @@ shiftsRouter.get('/generator/:start_date/:end_date', ShiftsController.employeeCo
 const EmployeesController = require('../app/Controllers/EmployeesController.js');
 const employeesRouter = require('koa-router')({
     prefix: '/employees'
-});
+}); 
 
 employeesRouter.get('/all-employees', EmployeesController.allEmployees);
 employeesRouter.get('/all-punches', EmployeesController.allPunches);
