@@ -187,6 +187,35 @@ const removeTimeOffRequest = async (ctx) => {
     });
 }
 
+const addAvailabilityRequest = async (ctx) => {
+    return new Promise((resolve, reject) => {
+
+        let query = `
+            INSERT INTO cs470_Employee_Availability_Requests 
+            (employee_id, day_of_week, start_time, end_time, status) 
+            VALUES (?, ?, ?, ?, "Pending")
+            ON DUPLICATE KEY UPDATE start_time = ?, end_time = ?, status = "Pending";
+            `;
+
+        dbConnection.query({
+            sql: query,
+            values: [Number(ctx.params.employee_id), ctx.params.day_of_week, ctx.params.start_time, ctx.params.end_time, ctx.start_time, ctx.end_time]
+        }, (error, result) => {
+            if (error) {
+                console.log("Connection error in EmployeesController::addTimeOffRequest", error);
+                ctx.status = 500;
+                return reject(error);
+            }
+            console.log("Time off request added successfully!");
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in addTimeOffRequest.", err);
+        ctx.status = 500;
+    });
+}
+
 const availabilityRequestsByID= async (ctx) => {
     return new Promise((resolve, reject) => {
         const query = `
@@ -471,6 +500,7 @@ module.exports = {
     timeOffRequestByID,
     addTimeOffRequest,
     removeTimeOffRequest,
+    addAvailabilityRequest,
     availabilityRequestsByID,
     updateEmployee,
     employeesTrainedInShift,
