@@ -40,13 +40,14 @@ const allPunches = async (ctx) => {
     			p.punchin,
     			p.approved,
     			p.pending,
-    			p.punch_type
+    			p.punch_type,
+			p.employee_id
 		FROM
     			cs470_Employee_Punchin p
 		JOIN
     			cs470_Employee e ON p.employee_id = e.employee_id
 		ORDER BY
-			p.punchin
+			p.pending DESC, p.punchin
 		     `;
 
         dbConnection.query({
@@ -69,20 +70,20 @@ const allPunches = async (ctx) => {
     });
 }
 
-const allRequests = async (ctx) => {
+const allTimeoffRequests = async (ctx) => {
     return new Promise((resolve, reject) => {
 
-        let query = `SELECT CONCAT(e.first_name, ' ', e.last_name) AS name, t.start_time, t.end_time, t.reason
+        let query = `SELECT CONCAT(e.first_name, ' ', e.last_name) AS name, t.start_time, t.end_time, t.reason, t.status, t.employee_id
 			FROM cs470_Employee_Timeoff t
 			JOIN cs470_Employee e ON t.employee_id = e.employee_id
-			ORDER BY t.start_time;
+			ORDER BY t.status DESC, t.start_time;
 			`;
 
         dbConnection.query({
             sql: query
         }, (error, tuples) => {
             if (error) {
-                console.log("Connection error in EmployeesController::allRequests", error);
+                console.log("Connection error in EmployeesController::allTimeoffRequests", error);
                 ctx.body = [];
                 ctx.status = 200;
                 return reject(error);
@@ -92,7 +93,35 @@ const allRequests = async (ctx) => {
             return resolve();
         });
     }).catch(err => {
-        console.log("Database connection error in allRequests.", err);
+        console.log("Database connection error in allTimeoffRequests.", err);
+        ctx.body = [];
+        ctx.status = 500;
+    });
+}
+
+const allAvailabilityRequests = async (ctx) => {
+    return new Promise((resolve, reject) => {
+
+        let query = `SELECT CONCAT(e.first_name, ' ', e.last_name) AS name, t.start_time, t.end_time, t.day_of_week, t.status, t.employee_id                        FROM cs470_Employee_Availability_Requests t
+                        JOIN cs470_Employee e ON t.employee_id = e.employee_id
+                        ORDER BY t.status DESC, t.start_time;
+                        `;
+
+        dbConnection.query({
+            sql: query
+        }, (error, tuples) => {
+            if (error) {
+                console.log("Connection error in EmployeesController::allAvailabilityRequests", error);
+                ctx.body = [];
+                ctx.status = 200;
+                return reject(error);
+            }
+            ctx.body = tuples;
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in allAvailabilityRequests.", err);
         ctx.body = [];
         ctx.status = 500;
     });
@@ -464,10 +493,75 @@ const fetchAvailabilityByID= async (ctx) => {
     });
 }
 
+const updateTimeoff = async (ctx) => {
+    return new Promise((resolve, reject) => {
+
+        let valuesFromUpdate = JSON.parse(JSON.stringify(ctx.request.body)); //Deep copy for passed object
+
+        const { employee_id, start_time, status} = valuesFromUpdate;
+
+        let query = `
+            UPDATE cs470_Employee_Timeoff
+            SET status = ?
+            WHERE employee_id = ? AND start_time = ?;
+            `;
+
+        dbConnection.query({
+            sql: query,
+            values: [status, employee_id, start_time]
+        }, (error, result) => {
+            if (error) {
+                console.log("Connection error in EmployeeController::updateTimeoff", error);
+                ctx.status = 500;
+                return reject(error);
+            }
+            console.log("Timeoff updated successfully!");
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in updateTimeoff.", err);
+        ctx.status = 500;
+    });
+}
+
+const updateAvailabilityRequest = async (ctx) => {
+    return new Promise((resolve, reject) => {
+
+        let valuesFromUpdate = JSON.parse(JSON.stringify(ctx.request.body)); //Deep copy for passed object
+
+        const { employee_id, start_time, status, day_of_week} = valuesFromUpdate;
+
+        let query = `
+            UPDATE cs470_Employee_Availability_Requests
+            SET status = ?
+            WHERE employee_id = ? AND start_time = ? AND day_of_week = ?;
+            `;
+
+        dbConnection.query({
+            sql: query,
+            values: [status, employee_id, start_time, day_of_week]
+        }, (error, result) => {
+            if (error) {
+                console.log("Connection error in EmployeeController::updateAvailabilityRequest", error);
+                ctx.status = 500;
+                return reject(error);
+            }
+            console.log("Availability request updated successfully!");
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in updateAvailabilityRequest.", err);
+        ctx.status = 500;
+    });
+}
+
 module.exports = {
     allEmployees,
     allPunches,
-    allRequests,
+    allTimeoffRequests,
+    allAvailabilityRequests,
     timeOffRequestByID,
     addTimeOffRequest,
     removeTimeOffRequest,
@@ -478,5 +572,7 @@ module.exports = {
     employeeHoursInRange,
     employeeShiftsInRange,
     deleteEmployee,
-    fetchAvailabilityByID
+    fetchAvailabilityByID,
+    updateTimeoff,
+    updateAvailabilityRequest
 };

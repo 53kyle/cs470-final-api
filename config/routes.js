@@ -61,6 +61,7 @@ shiftsRouter.get('/employee/:employee_id/:start_date/:end_date', ShiftsControlle
 shiftsRouter.get('/employee/:employee_id/next', ShiftsController.nextShiftForEmployee);
 shiftsRouter.get('/employee/:employee_id/today', ShiftsController.todaysShiftForEmployee);
 shiftsRouter.put('/update/:employee_id/:shift_id', ShiftsController.updateShift);
+shiftsRouter.put('/post/:shift_id', ShiftsController.postShift);
 shiftsRouter.get('/generator/:start_date/:end_date', ShiftsController.employeeCountByShift);
 
 const EmployeesController = require('../app/Controllers/EmployeesController.js');
@@ -70,7 +71,8 @@ const employeesRouter = require('koa-router')({
 
 employeesRouter.get('/all-employees', EmployeesController.allEmployees);
 employeesRouter.get('/all-punches', EmployeesController.allPunches);
-employeesRouter.get('/all-requests', EmployeesController.allRequests);
+employeesRouter.get('/all-requests/timeoff', EmployeesController.allTimeoffRequests);
+employeesRouter.get('/all-requests/availability', EmployeesController.allAvailabilityRequests);
 employeesRouter.get('/requests/time-off/:employee_id', EmployeesController.timeOffRequestByID);
 employeesRouter.post('/requests/add-time-off/:employee_id/:start_time/:end_time/:reason', EmployeesController.addTimeOffRequest);
 employeesRouter.delete('/requests/remove-time-off/:employee_id/:start_time/:end_time/:reason', EmployeesController.removeTimeOffRequest);
@@ -82,6 +84,8 @@ employeesRouter.get('/hours/:start_date/:end_date', EmployeesController.employee
 employeesRouter.get('/shifts/:start_date/:end_date', EmployeesController.employeeShiftsInRange);
 employeesRouter.delete('/delete/:employee_id', EmployeesController.deleteEmployee);
 employeesRouter.get('/availability/:employee_id', EmployeesController.fetchAvailabilityByID);
+employeesRouter.put('/update-timeoff', EmployeesController.updateTimeoff);
+employeesRouter.put('/update-availability-request', EmployeesController.updateAvailabilityRequest);
 
 const PunchInController = require('../app/Controllers/PunchInController.js');
 const punchInRouter = require('koa-router')({
@@ -105,6 +109,8 @@ notificationsRouter.post('/add-notification/:employee_id/:message', Notification
 notificationsRouter.delete('/remove-notification/:employee_id/:time', NotificationsController.removeNotification);
 notificationsRouter.put('/set-notifications-read/:employee_id', NotificationsController.setNotificationsReadForEmployee);
 notificationsRouter.get('/all-notifications/:employee_id', NotificationsController.notificationsForEmployee);
+notificationsRouter.get('/pending-count', NotificationsController.availabilityTimeOffPendingCount);
+notificationsRouter.get('/punch-pending-count', NotificationsController.punchinPendingCount);
 
 /**
  * Register all of the controllers into the default controller.
