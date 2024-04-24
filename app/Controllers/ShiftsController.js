@@ -48,6 +48,7 @@ const shiftsForEmployeeInRange = async (ctx) => {
             WHERE DATE(s.start_time) >= DATE(?) 
             AND DATE(s.start_time) <= DATE(?) 
             AND employee_id = ?
+            AND posted = 1
             ORDER BY s.start_time;`;
 
         dbConnection.query({
@@ -232,12 +233,38 @@ const updateShift = async (ctx) => {
                 ctx.status = 500;
                 return reject(error);
             }
-            console.log("Shift updated successfully");
             ctx.status = 200;
             return resolve();
         });
     }).catch(err => {
         console.log("Database connection error in updateShift.", err);
+        ctx.status = 500;
+    });
+}
+
+const postShift = async (ctx) => {
+    const { shift_id } = ctx.params;
+    return new Promise((resolve, reject) => {
+        const query = `
+            UPDATE cs470_Shift
+            SET posted = TRUE
+            WHERE shift_id = ? AND employee_id IS NOT NULL;
+        `;
+
+        dbConnection.query({
+            sql: query,
+            values: [shift_id]
+        }, (error, result) => {
+            if (error) {
+                console.log("Connection error in ShiftController::postShift", error);
+                ctx.status = 500;
+                return reject(error);
+            }
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in postShift.", err);
         ctx.status = 500;
     });
 }
@@ -248,5 +275,6 @@ module.exports = {
     nextShiftForEmployee,
     todaysShiftForEmployee,
     updateShift,
-    employeeCountByShift
+    employeeCountByShift,
+    postShift
 };

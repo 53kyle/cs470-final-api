@@ -117,9 +117,68 @@ const notificationsForEmployee = async (ctx) => {
     });
 }
 
+const availabilityTimeOffPendingCount = async (ctx) => {
+    return new Promise((resolve, reject) => {
+
+        let query = `SELECT SUM(pending_count) AS total_pending_count FROM (
+            SELECT COUNT(*) AS pending_count FROM cs470_Employee_Timeoff WHERE status = 'pending'
+            UNION ALL
+            SELECT COUNT(*) AS pending_count FROM cs470_Employee_Availability_Requests WHERE status = 'pending'
+        ) AS counts;
+        `;
+
+        dbConnection.query({
+            sql: query,
+            values: []
+        }, (error, tuples) => {
+            if (error) {
+                console.log("Connection error in NotificationsController::availabilityTimeOffPendingCount", error);
+                ctx.body = [];
+                ctx.status = 200;
+                return reject(error);
+            }
+            ctx.body = tuples;
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in availabilityTimeOffPendingCount.", err);
+        ctx.body = [];
+        ctx.status = 500;
+    });
+}
+
+const punchinPendingCount = async (ctx) => {
+    return new Promise((resolve, reject) => {
+
+        let query = `SELECT COUNT(*) as count FROM cs470_Employee_Punchin WHERE pending = 1 AND approved = 0`;
+
+        dbConnection.query({
+            sql: query,
+            values: []
+        }, (error, tuples) => {
+            if (error) {
+                console.log("Connection error in NotificationsController::punchinPendingCount", error);
+                ctx.body = [];
+                ctx.status = 200;
+                return reject(error);
+            }
+            ctx.body = tuples;
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in punchinPendingCount.", err);
+        ctx.body = [];
+        ctx.status = 500;
+    });
+}
+
 module.exports = {
     addNotification,
     removeNotification,
     setNotificationsReadForEmployee,
-    notificationsForEmployee
+    notificationsForEmployee,
+    availabilityTimeOffPendingCount,
+    punchinPendingCount
 };
