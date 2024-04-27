@@ -282,7 +282,7 @@ const addShift = async (ctx) => {
 
         dbConnection.query({
             sql: query,
-            values: [department, Number(employee_id), start_time, end_time, meal, meal_start, meal_end, posted]
+            values: [department, Number(employee_id) || null, start_time, end_time, meal, meal_start, meal_end, posted]
         }, (error, result) => {
             if (error) {
                 console.log("Connection error in ShiftController::addShift", error);
