@@ -64,6 +64,8 @@ shiftsRouter.put('/update/:employee_id/:shift_id', ShiftsController.updateShift)
 shiftsRouter.put('/post/:shift_id', ShiftsController.postShift);
 shiftsRouter.get('/generator/:start_date/:end_date', ShiftsController.employeeCountByShift);
 shiftsRouter.post('/add-shift', ShiftsController.addShift);
+shiftsRouter.put('/edit-shift', ShiftsController.editShift);
+shiftsRouter.delete('/delete-shift/:shift_id', ShiftsController.deleteShift);
 shiftsRouter.get('/trained-departments', ShiftsController.allTrained);
 
 const EmployeesController = require('../app/Controllers/EmployeesController.js');

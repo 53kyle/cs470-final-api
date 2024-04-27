@@ -299,6 +299,63 @@ const addShift = async (ctx) => {
     });
 }
 
+const editShift = async (ctx) => {
+    return new Promise((resolve, reject) => {
+        let valuesFromUpdate = JSON.parse(JSON.stringify(ctx.request.body)); //Deep copy for passed object
+
+        const { department, employee_id, start_time, end_time, meal, meal_start, meal_end, posted, shift_id } = valuesFromUpdate;
+        let query = `
+            UPDATE cs470_Shift 
+            SET department = ?, employee_id = ?, start_time = ?, end_time = ?, meal = ?, meal_start = ?, meal_end = ?, posted = ?
+            WHERE shift_id = ?
+            `;
+
+        dbConnection.query({
+            sql: query,
+            values: [department, Number(employee_id) || null, start_time, end_time, meal, meal_start, meal_end, posted, Number(shift_id)]
+        }, (error, result) => {
+            if (error) {
+                console.log("Connection error in ShiftController::editShift", error);
+                ctx.status = 500;
+                return reject(error);
+            }
+            console.log("Shift edited successfully!");
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in editShift.", err);
+        ctx.status = 500;
+    });
+}
+
+const deleteShift = async (ctx) => {
+    return new Promise((resolve, reject) => {
+
+        let query = `
+            DELETE FROM cs470_Shift 
+            WHERE shift_id = ?;
+            `;
+
+        dbConnection.query({
+            sql: query,
+            values: [Number(ctx.params.shift_id)]
+        }, (error, result) => {
+            if (error) {
+                console.log("Connection error in ShiftController::deleteShift", error);
+                ctx.status = 500;
+                return reject(error);
+            }
+            console.log("Shift removed successfully!");
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in deleteShift.", err);
+        ctx.status = 500;
+    });
+}
+
 const allTrained = async (ctx) => {
     return new Promise((resolve, reject) => {
 
@@ -336,5 +393,7 @@ module.exports = {
     employeeCountByShift,
     postShift,
     addShift,
+    editShift,
+    deleteShift,
     allTrained
 };
