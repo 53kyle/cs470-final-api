@@ -101,6 +101,7 @@ punchInRouter.post('/end-meal/:employee_id/:approved', PunchInController.addEndM
 punchInRouter.put('/set-approved/:employee_id/:punchin', PunchInController.setPunchApproved);
 punchInRouter.put('/set-denied/:employee_id/:punchin', PunchInController.setPunchDenied);
 punchInRouter.get('/last-punch/:employee_id', PunchInController.lastPunchForEmployee);
+punchInRouter.get('/all-punch/:employee_id/:start_date/:end_date', PunchInController.punchesOnDayForEmployee);
 
 const NotificationsController = require('../app/Controllers/NotificationsController');
 const notificationsRouter = require('koa-router')({

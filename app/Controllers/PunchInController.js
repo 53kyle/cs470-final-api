@@ -203,6 +203,38 @@ const lastPunchForEmployee = async (ctx) => {
     });
 }
 
+const punchesOnDayForEmployee = async (ctx) => {
+    return new Promise((resolve, reject) => {
+
+        let query = `
+        SELECT * 
+        FROM cs470_Employee_Punchin 
+        WHERE employee_id = ? 
+        AND punchin >= ? 
+        AND punchin <= ?;
+        `;
+
+        dbConnection.query({
+            sql: query,
+            values: [Number(ctx.params.employee_id), ctx.params.start_date, ctx.params.end_date]
+        }, (error, tuples) => {
+            if (error) {
+                console.log("Connection error in PunchInController::lastPunchForEmployee", error);
+                ctx.body = [];
+                ctx.status = 200;
+                return reject(error);
+            }
+            ctx.body = tuples;
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in lastPunchForEmployee.", err);
+        ctx.body = [];
+        ctx.status = 500;
+    });
+}
+
 module.exports = {
     addStartShift: addStartShift,
     addEndShift: addEndShift,
@@ -210,5 +242,6 @@ module.exports = {
     addEndMeal: addEndMeal,
     setPunchApproved: setPunchApproved,
     setPunchDenied: setPunchDenied,
-    lastPunchForEmployee: lastPunchForEmployee
+    lastPunchForEmployee: lastPunchForEmployee,
+    punchesOnDayForEmployee: punchesOnDayForEmployee
 };
