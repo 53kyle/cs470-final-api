@@ -393,13 +393,14 @@ const employeeHoursInRange = async (ctx) => {
     return new Promise((resolve, reject) => {
         const query = `
                     SELECT 
-                    employee_id,
-                    SUM((TIMESTAMPDIFF(MINUTE, start_time, end_time) - TIMESTAMPDIFF(MINUTE, meal_start, meal_end)) / 60) AS total_hours
-                    FROM cs470_Shift
-                    WHERE 
-                        start_time >= ?
-                        AND end_time <= ?
-                    GROUP BY employee_id
+                    e.employee_id,
+                    COALESCE(SUM((TIMESTAMPDIFF(MINUTE, s.start_time, s.end_time) - TIMESTAMPDIFF(MINUTE, s.meal_start, s.meal_end)) / 60), 0) AS total_hours
+                    FROM cs470_Employee e
+                    LEFT JOIN 
+                    cs470_Shift s ON e.employee_id = s.employee_id 
+                    AND s.start_time >= "2024-06-30" 
+                    AND s.end_time <= "2024-07-06"
+                    GROUP BY e.employee_id
                     ORDER BY total_hours;
                     `;
         dbConnection.query({
