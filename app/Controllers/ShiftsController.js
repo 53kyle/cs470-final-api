@@ -269,6 +269,36 @@ const postShift = async (ctx) => {
     });
 }
 
+const addShift = async (ctx) => {
+    return new Promise((resolve, reject) => {
+        let valuesFromUpdate = JSON.parse(JSON.stringify(ctx.request.body)); //Deep copy for passed object
+
+        const { department, employee_id, start_time, end_time, meal, meal_start, meal_end, posted } = valuesFromUpdate;
+        let query = `
+            INSERT INTO cs470_Shift 
+            (department, employee_id, start_time, end_time, meal, meal_start, meal_end, posted) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+            `;
+
+        dbConnection.query({
+            sql: query,
+            values: [department, Number(employee_id), start_time, end_time, meal, meal_start, meal_end, posted]
+        }, (error, result) => {
+            if (error) {
+                console.log("Connection error in ShiftController::addShift", error);
+                ctx.status = 500;
+                return reject(error);
+            }
+            console.log("Shift added successfully!");
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in addShift.", err);
+        ctx.status = 500;
+    });
+}
+
 module.exports = {
     shiftsInRange,
     shiftsForEmployeeInRange,
@@ -276,5 +306,6 @@ module.exports = {
     todaysShiftForEmployee,
     updateShift,
     employeeCountByShift,
-    postShift
+    postShift,
+    addShift
 };
