@@ -434,8 +434,8 @@ const employeeShiftsInRange = async (ctx) => {
                     COUNT(department) as count
                     FROM cs470_Shift
                     WHERE 
-                        start_time >= '2024-04-01'
-                        AND end_time <= '2024-06-30'
+                        start_time >= ?
+                        AND end_time <= ?
                         AND employee_id IS NOT NULL
                     GROUP BY employee_id
                     ORDER BY count
