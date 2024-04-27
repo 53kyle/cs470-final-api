@@ -430,15 +430,15 @@ const employeeShiftsInRange = async (ctx) => {
     return new Promise((resolve, reject) => {
         const query = `
                     SELECT 
-                    employee_id,
-                    COUNT(department) as count
-                    FROM cs470_Shift
-                    WHERE 
-                        start_time >= ?
-                        AND end_time <= ?
-                        AND employee_id IS NOT NULL
-                    GROUP BY employee_id
-                    ORDER BY count
+                    e.employee_id,
+                    COUNT(s.department) AS count
+                    FROM cs470_Employee e
+                    LEFT JOIN 
+                    cs470_Shift s ON e.employee_id = s.employee_id 
+                    AND s.start_time >= ? 
+                    AND s.end_time <= ?
+                    GROUP BY e.employee_id
+                    ORDER BY count;
                     `;
         dbConnection.query({
             sql: query,
