@@ -64,6 +64,7 @@ shiftsRouter.put('/update/:employee_id/:shift_id', ShiftsController.updateShift)
 shiftsRouter.put('/post/:shift_id', ShiftsController.postShift);
 shiftsRouter.get('/generator/:start_date/:end_date', ShiftsController.employeeCountByShift);
 shiftsRouter.post('/add-shift', ShiftsController.addShift);
+shiftsRouter.get('/trained-departments', ShiftsController.allTrained);
 
 const EmployeesController = require('../app/Controllers/EmployeesController.js');
 const employeesRouter = require('koa-router')({

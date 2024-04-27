@@ -299,6 +299,34 @@ const addShift = async (ctx) => {
     });
 }
 
+const allTrained = async (ctx) => {
+    return new Promise((resolve, reject) => {
+
+        let query = `
+            SELECT * FROM cs470_Employee_Trained 
+            GROUP BY department 
+            ORDER BY department;`;
+
+        dbConnection.query({
+            sql: query
+        }, (error, tuples) => {
+            if (error) {
+                console.log("Connection error in ShiftsController::allTrained", error);
+                ctx.body = [];
+                ctx.status = 200;
+                return reject(error);
+            }
+            ctx.body = tuples;
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in allTrained.", err);
+        ctx.body = [];
+        ctx.status = 500;
+    });
+}
+
 module.exports = {
     shiftsInRange,
     shiftsForEmployeeInRange,
@@ -307,5 +335,6 @@ module.exports = {
     updateShift,
     employeeCountByShift,
     postShift,
-    addShift
+    addShift,
+    allTrained
 };
