@@ -330,14 +330,14 @@ const employeesAvailableForShift = async (ctx) => {
                         SELECT 1
                         FROM cs470_Employee_Availability ava
                         WHERE e.employee_id = ava.employee_id
-                        AND ava.day_of_week = (SELECT DAYNAME(start_time) FROM cs470_Shift WHERE shift_id = ?)
+                        AND ava.day_of_week = DAYNAME(start_time)
                         AND TIME(ava.start_time) <= (SELECT TIME(start_time) FROM cs470_Shift WHERE shift_id = ?)
                         AND TIME(ava.end_time) >= (SELECT TIME(end_time) FROM cs470_Shift WHERE shift_id = ?)
                     )
                     `;
         dbConnection.query({
             sql: query,
-            values: [ctx.params.shift_id, ctx.params.shift_id, ctx.params.shift_id, ctx.params.shift_id, ctx.params.shift_id]
+            values: [ctx.params.shift_id, ctx.params.shift_id, ctx.params.shift_id, ctx.params.shift_id]
         }, (error, tuples) => {
             if (error) {
                 console.log("Connection error in EmployeesController::employeesAvailableForShift", error);
