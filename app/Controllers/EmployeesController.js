@@ -398,8 +398,8 @@ const employeeHoursInRange = async (ctx) => {
                     FROM cs470_Employee e
                     LEFT JOIN 
                     cs470_Shift s ON e.employee_id = s.employee_id 
-                    AND s.start_time >= "2024-06-30" 
-                    AND s.end_time <= "2024-07-06"
+                    AND s.start_time >= ?
+                    AND s.end_time <= ?
                     GROUP BY e.employee_id
                     ORDER BY total_hours;
                     `;
