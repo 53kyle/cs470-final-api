@@ -358,6 +358,42 @@ const employeesAvailableForShift = async (ctx) => {
     });
 }
 
+const conflictingEmployeeForShift = async (ctx) => {
+    return new Promise((resolve, reject) => {
+        const query = `
+                    SELECT e.employee_id
+                    FROM cs470_Employee e
+                    WHERE NOT EXISTS (
+                        SELECT 1
+                        FROM cs470_Shift s
+                        WHERE e.employee_id = s.employee_id
+                        AND DATE(s.start_time) = DATE((SELECT start_time FROM cs470_Shift WHERE shift_id = ?))
+                    )
+        
+                    `;
+        dbConnection.query({
+            sql: query,
+            values: [ctx.params.shift_id]
+        }, (error, tuples) => {
+            if (error) {
+                console.log("Connection error in EmployeesController::conflictingEmployeeForShift", error);
+                ctx.body = [];
+                ctx.status = 200;
+                return reject(error);
+            }
+            ctx.body = tuples;
+            ctx.status = 200;
+            return resolve();
+        }); 
+    }).catch(err => {
+        console.log("Database connection error in conflictingEmployeeForShift.", err);
+        // The UI side will have to look for the value of status and
+        // if it is not 200, act appropriately.
+        ctx.body = [];
+        ctx.status = 500;
+    });
+}
+
 const updateEmployee = async (ctx) => {
     return new Promise((resolve, reject) => {
 	let valuesFromUpdate = JSON.parse(JSON.stringify(ctx.request.body)); //Deep copy for passed object
@@ -605,5 +641,6 @@ module.exports = {
     deleteEmployee,
     fetchAvailabilityByID,
     updateTimeoff,
-    updateAvailabilityRequest
+    updateAvailabilityRequest,
+    conflictingEmployeeForShift
 };
