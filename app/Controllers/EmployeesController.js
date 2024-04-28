@@ -317,7 +317,7 @@ const employeesAvailableForShift = async (ctx) => {
     return new Promise((resolve, reject) => {
         const query = `
                     SELECT e.employee_id
-                    FROM cs470_Employee e
+                    FROM cs470_Employee e 
                     WHERE NOT EXISTS (
                         SELECT 1
                         FROM cs470_Employee_Timeoff toff
