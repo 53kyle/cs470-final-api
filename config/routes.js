@@ -92,6 +92,7 @@ employeesRouter.delete('/delete/:employee_id', EmployeesController.deleteEmploye
 employeesRouter.get('/availability/:employee_id', EmployeesController.fetchAvailabilityByID);
 employeesRouter.put('/update-timeoff', EmployeesController.updateTimeoff);
 employeesRouter.put('/update-availability-request', EmployeesController.updateAvailabilityRequest);
+employeesRouter.post('/add-employee', EmployeesController.addEmployee);
 
 const PunchInController = require('../app/Controllers/PunchInController.js');
 const punchInRouter = require('koa-router')({

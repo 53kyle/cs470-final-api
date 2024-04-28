@@ -623,6 +623,38 @@ const updateAvailabilityRequest = async (ctx) => {
     });
 }
 
+const addEmployee = async (ctx) => {
+    return new Promise((resolve, reject) => {
+
+        let valuesFromUpdate = JSON.parse(JSON.stringify(ctx.request.body)); //Deep copy for passed object
+
+        const { first_name, middle_name, last_name, permission, password_hash, max_hours } = valuesFromUpdate;
+
+        let query = `
+            INSERT INTO cs470_Employee
+            (first_name, middle_name, last_name, permission, password_hash, max_hours)
+            VALUES (?, ?, ?, ?, ?, ?);
+            `;
+
+        dbConnection.query({
+            sql: query,
+            values: [first_name, middle_name, last_name, permission, password_hash, Number(max_hours)]
+        }, (error, result) => {
+            if (error) {
+                console.log("Connection error in EmployeeController::addEmployee", error);
+                ctx.status = 500;
+                return reject(error);
+            }
+            console.log("Employee added successfully!");
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in addEmployee.", err);
+        ctx.status = 500;
+    });
+}
+
 module.exports = {
     allEmployees,
     allPunches,
@@ -642,5 +674,6 @@ module.exports = {
     fetchAvailabilityByID,
     updateTimeoff,
     updateAvailabilityRequest,
-    conflictingEmployeeForShift
+    conflictingEmployeeForShift,
+    addEmployee
 };
