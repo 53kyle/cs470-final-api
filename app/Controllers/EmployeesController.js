@@ -228,7 +228,7 @@ const addAvailabilityRequest = async (ctx) => {
 
         dbConnection.query({
             sql: query,
-            values: [Number(ctx.params.employee_id), ctx.params.day_of_week, ctx.params.start_time, ctx.params.end_time, ctx.start_time, ctx.end_time]
+            values: [Number(ctx.params.employee_id), ctx.params.day_of_week, ctx.params.start_time, ctx.params.end_time, ctx.params.start_time, ctx.params.end_time]
         }, (error, result) => {
             if (error) {
                 console.log("Connection error in EmployeesController::addTimeOffRequest", error);
