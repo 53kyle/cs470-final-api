@@ -81,6 +81,7 @@ employeesRouter.get('/requests/time-off/:employee_id', EmployeesController.timeO
 employeesRouter.post('/requests/add-time-off/:employee_id/:start_time/:end_time/:reason', EmployeesController.addTimeOffRequest);
 employeesRouter.delete('/requests/remove-time-off/:employee_id/:start_time/:end_time/:reason', EmployeesController.removeTimeOffRequest);
 employeesRouter.post('/requests/add-availability/:employee_id/:day_of_week/:start_time/:end_time/', EmployeesController.addAvailabilityRequest);
+employeesRouter.post('/add-trained/:employee_id/:department', EmployeesController.addTraining);
 employeesRouter.get('/requests/availability/:employee_id', EmployeesController.availabilityRequestsByID);
 employeesRouter.put('/update', EmployeesController.updateEmployee);
 employeesRouter.get('/trained/:shift_id', EmployeesController.employeesTrainedInShift);

@@ -245,6 +245,34 @@ const addAvailabilityRequest = async (ctx) => {
     });
 }
 
+const addTraining = async (ctx) => {
+    return new Promise((resolve, reject) => {
+
+        let query = `
+            INSERT INTO cs470_Employee_Trained 
+            (employee_id, department) 
+            VALUES (?, ?)
+            `;
+
+        dbConnection.query({
+            sql: query,
+            values: [Number(ctx.params.employee_id), ctx.params.department]
+        }, (error, result) => {
+            if (error) {
+                console.log("Connection error in EmployeesController::addTraining", error);
+                ctx.status = 500;
+                return reject(error);
+            }
+            console.log("Training added successfully!");
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in addTraining.", err);
+        ctx.status = 500;
+    });
+}
+
 const availabilityRequestsByID= async (ctx) => {
     return new Promise((resolve, reject) => {
         const query = `
@@ -664,6 +692,7 @@ module.exports = {
     addTimeOffRequest,
     removeTimeOffRequest,
     addAvailabilityRequest,
+    addTraining,
     availabilityRequestsByID,
     updateEmployee,
     employeesTrainedInShift,
