@@ -273,6 +273,33 @@ const addTraining = async (ctx) => {
     });
 }
 
+const removeTraining = async (ctx) => {
+    return new Promise((resolve, reject) => {
+
+        let query = `
+            DELETE FROM cs470_Employee_Trained 
+            WHERE employee_id = ? AND department = ?
+            `;
+
+        dbConnection.query({
+            sql: query,
+            values: [Number(ctx.params.employee_id), ctx.params.department]
+        }, (error, result) => {
+            if (error) {
+                console.log("Connection error in EmployeesController::removeTraining", error);
+                ctx.status = 500;
+                return reject(error);
+            }
+            console.log("Training removed successfully!");
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in removeTraining.", err);
+        ctx.status = 500;
+    });
+}
+
 const availabilityRequestsByID= async (ctx) => {
     return new Promise((resolve, reject) => {
         const query = `
@@ -693,6 +720,7 @@ module.exports = {
     removeTimeOffRequest,
     addAvailabilityRequest,
     addTraining,
+    removedTraining,
     availabilityRequestsByID,
     updateEmployee,
     employeesTrainedInShift,
