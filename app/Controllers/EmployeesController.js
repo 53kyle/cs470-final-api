@@ -720,7 +720,7 @@ module.exports = {
     removeTimeOffRequest,
     addAvailabilityRequest,
     addTraining,
-    removedTraining,
+    removeTraining,
     availabilityRequestsByID,
     updateEmployee,
     employeesTrainedInShift,
