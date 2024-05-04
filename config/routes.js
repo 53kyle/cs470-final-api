@@ -58,6 +58,7 @@ const shiftsRouter = require('koa-router')({
 
 shiftsRouter.get('/all-shifts/:start_date/:end_date', ShiftsController.shiftsInRange);
 shiftsRouter.get('/employee/:employee_id/:start_date/:end_date', ShiftsController.shiftsForEmployeeInRange);
+shiftsRouter.get('/unposted/:employee_id/:start_date/:end_date', ShiftsController.unpostedShiftsForEmployeeInRange);
 shiftsRouter.get('/employee/:employee_id/next', ShiftsController.nextShiftForEmployee);
 shiftsRouter.get('/employee/:employee_id/today', ShiftsController.todaysShiftForEmployee);
 shiftsRouter.put('/update/:employee_id/:shift_id', ShiftsController.updateShift);
@@ -67,6 +68,7 @@ shiftsRouter.post('/add-shift', ShiftsController.addShift);
 shiftsRouter.put('/edit-shift', ShiftsController.editShift);
 shiftsRouter.delete('/delete-shift/:shift_id', ShiftsController.deleteShift);
 shiftsRouter.get('/trained-departments', ShiftsController.allTrained);
+shiftsRouter.get('/conflicting/:employee_id/:shift_id', ShiftsController.conflictingShiftForEmployee);
 
 const EmployeesController = require('../app/Controllers/EmployeesController.js');
 const employeesRouter = require('koa-router')({
@@ -80,6 +82,7 @@ employeesRouter.get('/all-requests/availability', EmployeesController.allAvailab
 employeesRouter.get('/requests/time-off/:employee_id', EmployeesController.timeOffRequestByID);
 employeesRouter.post('/requests/add-time-off/:employee_id/:start_time/:end_time/:reason', EmployeesController.addTimeOffRequest);
 employeesRouter.delete('/requests/remove-time-off/:employee_id/:start_time/:end_time/:reason', EmployeesController.removeTimeOffRequest);
+employeesRouter.delete('/requests/remove-availability/:employee_id/:day_of_week', EmployeesController.removeAvailabilityRequest);
 employeesRouter.post('/requests/add-availability/:employee_id/:day_of_week/:start_time/:end_time/', EmployeesController.addAvailabilityRequest);
 employeesRouter.post('/add-trained/:employee_id/:department', EmployeesController.addTraining);
 employeesRouter.post('/remove-trained/:employee_id/:department', EmployeesController.removeTraining);
@@ -90,10 +93,14 @@ employeesRouter.get('/available/:shift_id', EmployeesController.employeesAvailab
 employeesRouter.get('/hours/:start_date/:end_date', EmployeesController.employeeHoursInRange);
 employeesRouter.get('/shifts/:start_date/:end_date', EmployeesController.employeeShiftsInRange);
 employeesRouter.get('/conflict/:shift_id', EmployeesController.conflictingEmployeeForShift);
+employeesRouter.get('/hash/:employee_id', EmployeesController.employeeHash);
+employeesRouter.get('/eligible/:shift_id', EmployeesController.employeesAvailableTrainedForShift);
 employeesRouter.delete('/delete/:employee_id', EmployeesController.deleteEmployee);
 employeesRouter.get('/availability/:employee_id', EmployeesController.fetchAvailabilityByID);
 employeesRouter.put('/update-timeoff', EmployeesController.updateTimeoff);
+employeesRouter.put('/update-password/:password_hash/:employee_id', EmployeesController.updatePassword);
 employeesRouter.put('/update-availability-request', EmployeesController.updateAvailabilityRequest);
+employeesRouter.put('/approve-availability-request', EmployeesController.ApproveAvailabilityRequest);
 employeesRouter.post('/add-employee', EmployeesController.addEmployee);
 
 const PunchInController = require('../app/Controllers/PunchInController.js');

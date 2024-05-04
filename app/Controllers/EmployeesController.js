@@ -70,6 +70,8 @@ const allPunches = async (ctx) => {
     });
 }
 
+
+
 const allTimeoffRequests = async (ctx) => {
     return new Promise((resolve, reject) => {
 
@@ -133,7 +135,7 @@ const timeOffRequestByID = async (ctx) => {
                         SELECT * 
                         FROM cs470_Employee_Timeoff
                         WHERE employee_id = ? 
-                        ORDER BY start_time;        
+                        ORDER BY status DESC, start_time;        
                     `;
         dbConnection.query({
             sql: query,
@@ -153,6 +155,35 @@ const timeOffRequestByID = async (ctx) => {
         console.log("Database connection error in timeOffRequestByID.", err);
         // The UI side will have to look for the value of status and
         // if it is not 200, act appropriately.
+        ctx.body = [];
+        ctx.status = 500;
+    });
+}
+
+
+const employeeHash = async (ctx) => {
+    return new Promise((resolve, reject) => {
+        const query = `
+                    SELECT password_hash 
+                    FROM cs470_Employee 
+                    WHERE employee_id = ?      
+                    `;
+        dbConnection.query({
+            sql: query,
+            values: [ctx.params.employee_id]
+        }, (error, tuples) => {
+            if (error) {
+                console.log("Connection error in EmployeesController::employeeHash", error);
+                ctx.body = [];
+                ctx.status = 200;
+                return reject(error);
+            }
+            ctx.body = tuples;
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in employeeHash.", err);
         ctx.body = [];
         ctx.status = 500;
     });
@@ -212,6 +243,36 @@ const removeTimeOffRequest = async (ctx) => {
         });
     }).catch(err => {
         console.log("Database connection error in removeTimeOffRequest.", err);
+        ctx.status = 500;
+    });
+}
+
+const removeAvailabilityRequest = async (ctx) => {
+    return new Promise((resolve, reject) => {
+
+        console.log(Number(ctx.params.employee_id) + ctx.params.day_of_week)
+
+        let query = `
+            DELETE FROM cs470_Employee_Availability_Requests
+            WHERE employee_id = ?
+            AND day_of_week = ?
+            `;
+
+        dbConnection.query({
+            sql: query,
+            values: [Number(ctx.params.employee_id), ctx.params.day_of_week]
+        }, (error, result) => {
+            if (error) {
+                console.log("Connection error in EmployeesController::removeAvailabilityRequest", error);
+                ctx.status = 500;
+                return reject(error);
+            }
+            console.log("Availability request removed successfully!");
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in removeAvailabilityRequest.", err);
         ctx.status = 500;
     });
 }
@@ -306,7 +367,7 @@ const availabilityRequestsByID= async (ctx) => {
                         SELECT * 
                         FROM cs470_Employee_Availability_Requests
                         WHERE employee_id = ? 
-                        ORDER BY start_time;        
+                        ORDER BY status DESC, start_time;        
                     `;
         dbConnection.query({
             sql: query,
@@ -413,6 +474,57 @@ const employeesAvailableForShift = async (ctx) => {
     });
 }
 
+const employeesAvailableTrainedForShift = async (ctx) => {
+    return new Promise((resolve, reject) => {
+        const query = `
+        SELECT e.employee_id
+        FROM cs470_Employee e
+        JOIN cs470_Employee_Trained t ON e.employee_id = t.employee_id
+        WHERE t.department = (
+            SELECT department 
+            FROM cs470_Shift 
+            WHERE shift_id = ?
+        )
+        AND NOT EXISTS (
+            SELECT 1
+            FROM cs470_Employee_Timeoff toff
+            WHERE e.employee_id = toff.employee_id
+            AND TIME(toff.start_time) <= (SELECT TIME(start_time) FROM cs470_Shift WHERE shift_id = ?)
+            AND TIME(toff.end_time) >= (SELECT TIME(end_time) FROM cs470_Shift WHERE shift_id = ?)
+            AND toff.status != 'Pending'
+        )
+        AND EXISTS (
+            SELECT 1
+            FROM cs470_Employee_Availability ava
+            WHERE e.employee_id = ava.employee_id
+            AND ava.day_of_week = (SELECT DAYNAME(start_time) FROM cs470_Shift WHERE shift_id = ?)
+            AND TIME(ava.start_time) <= (SELECT TIME(start_time) FROM cs470_Shift WHERE shift_id = ?)
+            AND TIME(ava.end_time) >= (SELECT TIME(end_time) FROM cs470_Shift WHERE shift_id = ?)
+        )
+                    `;
+        dbConnection.query({
+            sql: query,
+            values: [ctx.params.shift_id, ctx.params.shift_id, ctx.params.shift_id, ctx.params.shift_id, ctx.params.shift_id, ctx.params.shift_id]
+        }, (error, tuples) => {
+            if (error) {
+                console.log("Connection error in EmployeesController::employeesAvailableTrainedForShift", error);
+                ctx.body = [];
+                ctx.status = 200;
+                return reject(error);
+            }
+            ctx.body = tuples;
+            ctx.status = 200;
+            return resolve();
+        }); 
+    }).catch(err => {
+        console.log("Database connection error in employeesAvailableTrainedForShift.", err);
+        // The UI side will have to look for the value of status and
+        // if it is not 200, act appropriately.
+        ctx.body = [];
+        ctx.status = 500;
+    });
+}
+
 const conflictingEmployeeForShift = async (ctx) => {
     return new Promise((resolve, reject) => {
         const query = `
@@ -476,6 +588,33 @@ const updateEmployee = async (ctx) => {
         });
     }).catch(err => {
         console.log("Database connection error in updateEmployee.", err);
+        ctx.status = 500;
+    });
+}
+
+const updatePassword = async (ctx) => {
+    return new Promise((resolve, reject) => {
+        console.log(ctx.params.password_hash)
+        const query = `
+            UPDATE cs470_Employee
+            SET password_hash = ?
+            WHERE employee_id = ?;
+        `;
+
+        dbConnection.query({
+            sql: query,
+            values: [ctx.params.password_hash, ctx.params.employee_id]
+        }, (error, result) => {
+            if (error) {
+                console.log("Connection error in EmployeesController::updatePassword", error);
+                ctx.status = 500;
+                return reject(error);
+            }
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in updatePassword.", err);
         ctx.status = 500;
     });
 }
@@ -619,17 +758,17 @@ const updateTimeoff = async (ctx) => {
 
         let valuesFromUpdate = JSON.parse(JSON.stringify(ctx.request.body)); //Deep copy for passed object
 
-        const { employee_id, start_time, status} = valuesFromUpdate;
+        const { employee_id, start_time, end_time, reason, status, oldStartTime} = valuesFromUpdate;
 
         let query = `
             UPDATE cs470_Employee_Timeoff
-            SET status = ?
+            SET start_time = ?, end_time =?, reason = ?, status = ?
             WHERE employee_id = ? AND start_time = ?;
             `;
 
         dbConnection.query({
             sql: query,
-            values: [status, employee_id, start_time]
+            values: [start_time, end_time, reason, status, employee_id, oldStartTime]
         }, (error, result) => {
             if (error) {
                 console.log("Connection error in EmployeeController::updateTimeoff", error);
@@ -651,17 +790,17 @@ const updateAvailabilityRequest = async (ctx) => {
 
         let valuesFromUpdate = JSON.parse(JSON.stringify(ctx.request.body)); //Deep copy for passed object
 
-        const { employee_id, start_time, status, day_of_week} = valuesFromUpdate;
-
-        let query = `
+        const { employee_id, start_time, end_time, status, day_of_week} = valuesFromUpdate;
+	
+	let query = `
             UPDATE cs470_Employee_Availability_Requests
-            SET status = ?
-            WHERE employee_id = ? AND start_time = ? AND day_of_week = ?;
+            SET start_time = ?, end_time =?, status = ?
+            WHERE employee_id = ? AND day_of_week = ?;
             `;
 
         dbConnection.query({
             sql: query,
-            values: [status, employee_id, start_time, day_of_week]
+            values: [start_time, end_time, status, employee_id, day_of_week]
         }, (error, result) => {
             if (error) {
                 console.log("Connection error in EmployeeController::updateAvailabilityRequest", error);
@@ -674,6 +813,39 @@ const updateAvailabilityRequest = async (ctx) => {
         });
     }).catch(err => {
         console.log("Database connection error in updateAvailabilityRequest.", err);
+        ctx.status = 500;
+    });
+}
+
+const ApproveAvailabilityRequest = async (ctx) => {
+    return new Promise((resolve, reject) => {
+
+        let valuesFromUpdate = JSON.parse(JSON.stringify(ctx.request.body)); //Deep copy for passed object
+
+        const { employee_id, start_time, day_of_week, end_time} = valuesFromUpdate;
+
+        let query = `
+            INSERT INTO cs470_Employee_Availability
+            (employee_id, day_of_week, start_time, end_time) 
+            VALUES (?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE start_time = ?, end_time = ?;
+            `;
+
+        dbConnection.query({
+            sql: query,
+            values: [employee_id, day_of_week, start_time, end_time, start_time, end_time, employee_id, day_of_week]
+        }, (error, result) => {
+            if (error) {
+                console.log("Connection error in EmployeeController::ApproveAvailabilityRequest", error);
+                ctx.status = 500;
+                return reject(error);
+            }
+            console.log("Availability request updated successfully!");
+            ctx.status = 200;
+            return resolve();
+        });
+    }).catch(err => {
+        console.log("Database connection error in ApproveAvailabilityRequest.", err);
         ctx.status = 500;
     });
 }
@@ -718,6 +890,7 @@ module.exports = {
     timeOffRequestByID,
     addTimeOffRequest,
     removeTimeOffRequest,
+    removeAvailabilityRequest,
     addAvailabilityRequest,
     addTraining,
     removeTraining,
@@ -732,5 +905,9 @@ module.exports = {
     updateTimeoff,
     updateAvailabilityRequest,
     conflictingEmployeeForShift,
-    addEmployee
+    addEmployee,
+    updatePassword,
+    employeeHash,
+    ApproveAvailabilityRequest,
+    employeesAvailableTrainedForShift
 };
